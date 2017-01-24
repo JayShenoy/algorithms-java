@@ -1,17 +1,24 @@
 public class QuickUnionUF {
   private int[] id;
+  // Size of tree under each node
+  private int[] size;
 
   public QuickUnionUF(int N) {
     id = new int[N];
 
-    for(int i = 0; i < N; i++)
+    for(int i = 0; i < N; i++) {
       id[i] = i;
+      size[i] = 1;
+    }
   }
 
   private int root(int i) {
     // Traverse up the tree until root is found
-    while(id[i] != i)
+    while(id[i] != i) {
       i = id[i];
+      // Compress tree so that each node along the way points to its grandparent
+      id[i] = id[id[i]];
+    }
 
     return i;
   }
@@ -24,8 +31,17 @@ public class QuickUnionUF {
     int proot = root(p);
     int qroot = root(q);
 
-    // Join the components by setting p's root's parent to be q's root
-    id[proot] = qroot;
+    // Do nothing if nodes are the same
+    if(proot == qroot) return;
+    // Make smaller tree a subtree of larger tree
+    if(size[proot] >= size[qroot]) {
+      id[qroot] = proot;
+      size[proot] += size[qroot];
+    }
+    else {
+      id[proot] = qroot;
+      size[qroot] += proot;
+    }
   }
 
   public static void main(String[] args) {
